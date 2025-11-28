@@ -3,6 +3,7 @@ A Full-Stack, IoT-Enabled Platform for Predictive Biometric and Environmental Mo
 
 Safeguard Twin is an innovative monitoring solution designed to proactively prevent workplace hazards, specifically heat stress, by leveraging real-time data and predictive analytics. This project goes beyond a simple dashboard by integrating a live, interactive digital twin that visually communicates risk, making safety more intuitive and immediate.
 ✨ Core Capabilities & Technology Stack ⚙️
+
 This project showcases expertise across the full-stack, utilizing:
 
 Backend & Server: Node.js (Express)
@@ -33,6 +34,7 @@ Risk Visualization: Instantly changes color based on calculated heat-stress leve
 🟠 High Risk (Immediate Action Necessary)
 
 2️⃣ Real-Time Monitoring & Analytics 🌡️
+
 Real-time Sensor Simulation: Processes and visualizes incoming IoT-style data streams.
 
 Proprietary Heat-Stress Analytics: Applies logic to biometric and environmental data to calculate a dynamic risk score.
@@ -40,6 +42,7 @@ Proprietary Heat-Stress Analytics: Applies logic to biometric and environmental 
 Predictive Trends: Displays 7-Day Temperature Trend for proactive resource planning.
 
 3️⃣ Professional Dashboard Interface 🖥️
+
 A clean, intuitive interface for supervisors to monitor multiple key indicators at a glance, ensuring data-driven safety management.
 
 🚀 Get Started Locally
