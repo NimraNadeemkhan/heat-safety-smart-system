@@ -78,3 +78,5 @@ Safeguard Twin is poised for the next phase of development:
 👥 Multi-Worker Management: Expanding the dashboard to support and monitor multiple workers simultaneously.
 
 🎥 Demo & Visuals
+
+[![Watch the demo](https://img.youtube.com/vi/d0PUav8cRaM/0.jpg)](https://youtu.be/d0PUav8cRaM)
