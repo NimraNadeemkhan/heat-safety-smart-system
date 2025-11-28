@@ -1,4 +1,4 @@
-[6:06 PM, 11/28/2025] Nimra Khan: # Safeguard Twin — Worker Safety Console 🌡️
+ Nimra Khan: # Safeguard Twin — Worker Safety Console 🌡️
 *Real-Time Biometric & Environmental Monitoring System*
 
 Safeguard Twin is a full-stack worker-safety monitoring dashboard combining *IoT data, **heat-stress analytics, **predictive environmental metrics, and a **live digital twin robot* that visually reacts to risk levels.
@@ -23,7 +23,7 @@ A 3D / animated worker model that:
   - 🟡 Caution  
   - 🟠 High Risk  
  …
-[6:06 PM, 11/28/2025] Nimra Khan: public
+ public
 /assets
 index.html
 styles.css
@@ -32,7 +32,7 @@ package.json
 package-lock.json
 README.md
 /screenshots
-[6:06 PM, 11/28/2025] Nimra Khan: ---
+Nimra Khan: ---
 
 ## 📸 Screenshots
 (Upload your images to /screenshots folder)
@@ -54,23 +54,22 @@ README.md
 Replace YOUR_VIDEO_LINK with your actual YouTube / Vimeo link.  
 Replace demo-thumbnail.png with a screenshot of your video.
 
----
+
 
 ## ⚙️ How to Run Locally
 1. Install dependencies:
 ```bash
 npm install
-[6:07 PM, 11/28/2025] Nimra Khan: 2. Start the server
-[6:07 PM, 11/28/2025] Nimra Khan: node server.js
-[6:07 PM, 11/28/2025] Nimra Khan: 3. Open the app
-[6:07 PM, 11/28/2025] Nimra Khan: http://localhost:3000
-[6:07 PM, 11/28/2025] Nimra Khan: 🔮 Future Enhancements
+2. Start the server
+ node server.js
+ 3. Open the app
+http://localhost:3000
+🔮 Future Enhancements
 	•	Integration with real IoT sensors
 	•	AI-based heat-stroke prediction model
 	•	Worker fatigue score
 	•	Multi-worker dashboard view
 
-⸻
 
 👤 Author
 
