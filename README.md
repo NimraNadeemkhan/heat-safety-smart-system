@@ -1,93 +1,18 @@
-🏗️ Safeguard Twin: The Real-Time Worker Safety Console
-A Full-Stack, IoT-Enabled Platform for Predictive Biometric and Environmental Monitoring
+<img src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/apple/325/rocket_1f680.png" width="30"> **My Key Projects**
 
-Safeguard Twin is an innovative monitoring solution designed to proactively prevent workplace hazards, specifically heat stress, by leveraging real-time data and predictive analytics. This project goes beyond a simple dashboard by integrating a live, interactive digital twin that visually communicates risk, making safety more intuitive and immediate.
-✨ Core Capabilities & Technology Stack ⚙️
+<details open>
+<summary><h2>1. Safeguard Twin — Worker Safety Console (Full-Stack & Real-Time) 🌡️</h2></summary>
 
-This project showcases expertise across the full-stack, utilizing:
+| Field | Content |
+| :--- | :--- |
+| **Demo** | **[Safeguard Twin Demo](https://youtu.be/d0PUav8cRaM)** |
+| **Description** | A full-stack, real-time worker safety monitoring platform combining **IoT data, heat-stress analytics,** and a live, **interactive 3D Digital Twin** that visually reacts to risk levels. The project demonstrates full-stack proficiency from data ingestion (Node.js) to advanced frontend visualization. |
+| **Key Features** | * **Dynamic Digital Twin:** 3D model changes color (🟢/🟡/🟠) based on calculated risk. * **Predictive Metrics:** Utilizes the OpenWeatherMap API for environmental forecasting. * **Real-Time System:** Built for high-throughput data processing and immediate safety alerts. |
+| **Tech Stack** | * **Backend:** Node.js (Express) * **Frontend:** HTML5, CSS3, JavaScript (ES6+) * **Visualization:** Specialized JS Libraries (Three.js, Chart.js) * **APIs:** OpenWeatherMap API |
+| **Links** | <a href="https://youtu.be/d0PUav8cRaM" target="_blank" style="text-decoration: none;"><button style="background-color: #ff9900; color: white; padding: 10px 20px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer;">🎬 WATCH DEMO VIDEO</button></a><br><br><a href="[YOUR_REPO_LINK]" target="_blank" style="text-decoration: none;"><button style="background-color: #0366d6; color: white; padding: 10px 20px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer;">VIEW GITHUB CODE</button></a> |
+| **Screenshots** | **[INSERT Dashboard Screenshot IMAGE HERE]** <br> **[INSERT Digital Twin Robot IMAGE HERE]** <br> **[INSERT 7-Day Trend Chart IMAGE HERE]** |
 
-Backend & Server: Node.js (Express)
+</details>
 
-Frontend & UI/UX: HTML5, CSS3, JavaScript (ES6+)
 
-Visualization: Specialized JavaScript Libraries (e.g., Three.js, Chart.js)
-
-Data Integration: OpenWeatherMap API
-
-Risk Modeling: Custom Safety Logic (JavaScript/Node.js)
-
-Development Tools: npm
-
-Concepts: Full-Stack Architecture, Real-Time Systems, IoT Simulation, Predictive Modeling
-⭐ Key Features: Predictive Safety, Visualized
-1️⃣ Dynamic Digital Twin 🤖
-An engaging, 3D animated worker model that serves as the central visual safety indicator:
-
-Life-like Motion: Breaths and moves to simulate a real person.
-
-Risk Visualization: Instantly changes color based on calculated heat-stress levels:
-
-🟢 Optimal (Safe Conditions)
-
-🟡 Caution (Monitoring Required)
-
-🟠 High Risk (Immediate Action Necessary)
-
-2️⃣ Real-Time Monitoring & Analytics 🌡️
-
-Real-time Sensor Simulation: Processes and visualizes incoming IoT-style data streams.
-
-Proprietary Heat-Stress Analytics: Applies logic to biometric and environmental data to calculate a dynamic risk score.
-
-Predictive Trends: Displays 7-Day Temperature Trend for proactive resource planning.
-
-3️⃣ Professional Dashboard Interface 🖥️
-
-A clean, intuitive interface for supervisors to monitor multiple key indicators at a glance, ensuring data-driven safety management.
-
-🚀 Get Started Locally
-Follow these simple steps to run the application on your machine:
-
-Clone the Repository:
-
-Bash
-
-git clone [YOUR_REPO_LINK]
-cd safeguard-twin
-Install Dependencies:
-
-Bash
-
-npm install
-Start the Server (Node.js):
-
-Bash
-
-node server.js
-Open the App: Navigate to http://localhost:3000 in your web browser.
-
-💡 Future Vision & Enhancements
-Safeguard Twin is poised for the next phase of development:
-
-🔗 IoT Integration: Connecting to real-world biometric and environmental sensors for production readiness.
-
-🧠 Advanced AI/ML: Developing an AI-based model for granular heat-stroke prediction.
-
-📉 Fatigue Scoring: Implementation of a quantitative Worker Fatigue Score metric.
-
-👥 Multi-Worker Management: Expanding the dashboard to support and monitor multiple workers simultaneously.
-
-🎥 Demo & Visuals
-
-[![Watch the demo](https://img.youtube.com/vi/d0PUav8cRaM/0.jpg)](https://youtu.be/d0PUav8cRaM)
-## 🖼 Dashboard Screenshots
-
-### Full Dashboard
-![Full Dashboard]("C:\Users\HP\Desktop\current systems .png")
-
-### Heat Risk Panel
-![Heat Risk Panel](YOUR_IMAGE_PATH_HERE)
-
-### 3D Visualization
-![3D Model](YOUR_IMAGE_PATH_HERE)
 
