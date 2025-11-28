@@ -80,3 +80,14 @@ Safeguard Twin is poised for the next phase of development:
 🎥 Demo & Visuals
 
 [![Watch the demo](https://img.youtube.com/vi/d0PUav8cRaM/0.jpg)](https://youtu.be/d0PUav8cRaM)
+## 🖼 Dashboard Screenshots
+
+### Full Dashboard
+![Full Dashboard]("C:\Users\HP\Desktop\current systems .png")
+
+### Heat Risk Panel
+![Heat Risk Panel](YOUR_IMAGE_PATH_HERE)
+
+### 3D Visualization
+![3D Model](YOUR_IMAGE_PATH_HERE)
+
