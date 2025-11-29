@@ -1,8 +1,9 @@
 // server.js (Node/Express Backend)
 
 const express = require('express');
-const path = require('require');
+const path = require('path'); // IMPORTANT: Corrected the typo 'require' to 'path'
 const app = express();
+
 // RENDER FIX 1: Use the environment port provided by Render (process.env.PORT)
 // Fallback to 3000 for local development.
 const PORT = process.env.PORT || 3000;
