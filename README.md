@@ -1,18 +1,30 @@
-<img src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/apple/325/rocket_1f680.png" width="30"> **My Key Projects**
+🚀 My Key Projects
+<details open> <summary><h2>🔥 1. Safeguard Twin — Worker Safety Console (Full-Stack & Real-Time) 🌡️</h2></summary>
+📌 Project Summary
+Field	Details
+🎬 Demo	Watch Demo on YouTube
 
-<details open>
-<summary><h2>1. Safeguard Twin — Worker Safety Console (Full-Stack & Real-Time) 🌡️</h2></summary>
+📝 Description	A full-stack, real-time worker safety monitoring system using IoT sensors, environmental data, and a live 3D Digital Twin that changes color depending on risk level. Built for high-performance, real-time alerting and visual feedback.
+✨ Key Features	• 3D Digital Twin (Three.js) with real-time color states (🟢🟡🟠)
+• Weather-based predictive safety metrics using OpenWeatherMap
+• Real-time IoT data ingestion with Node.js & Express
+• Interactive charts and 7-day risk trends
+• High-speed alert system optimized for worker safety
+🧰 Tech Stack	Backend: Node.js <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg" width="20"/>
+Frontend: HTML5 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg" width="20"/> · CSS3 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg" width="20"/> · JavaScript <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg" width="20"/>
+Visualization: Three.js · Chart.js
+APIs: OpenWeatherMap
+🔗 Buttons	<a href="https://youtu.be/d0PUav8cRaM" target="_blank"><img src="https://img.shields.io/badge/Watch_Demo-FF0000?style=for-the-badge&logo=youtube&logoColor=white"></a>
 
-| Field | Content |
-| :--- | :--- |
-| **Demo** | **[Safeguard Twin Demo](https://youtu.be/d0PUav8cRaM)** |
-| **Description** | A full-stack, real-time worker safety monitoring platform combining **IoT data, heat-stress analytics,** and a live, **interactive 3D Digital Twin** that visually reacts to risk levels. The project demonstrates full-stack proficiency from data ingestion (Node.js) to advanced frontend visualization. |
-| **Key Features** | * **Dynamic Digital Twin:** 3D model changes color (🟢/🟡/🟠) based on calculated risk. * **Predictive Metrics:** Utilizes the OpenWeatherMap API for environmental forecasting. * **Real-Time System:** Built for high-throughput data processing and immediate safety alerts. |
-| **Tech Stack** | * **Backend:** Node.js (Express) * **Frontend:** HTML5, CSS3, JavaScript (ES6+) * **Visualization:** Specialized JS Libraries (Three.js, Chart.js) * **APIs:** OpenWeatherMap API |
-| **Links** | <a href="https://youtu.be/d0PUav8cRaM" target="_blank" style="text-decoration: none;"><button style="background-color: #ff9900; color: white; padding: 10px 20px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer;">🎬 WATCH DEMO VIDEO</button></a><br><br><a href="[YOUR_REPO_LINK]" target="_blank" style="text-decoration: none;"><button style="background-color: #0366d6; color: white; padding: 10px 20px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer;">VIEW GITHUB CODE</button></a> |
-| **Screenshots** | **[INSERT Dashboard Screenshot IMAGE HERE]** <br> **[INSERT Digital Twin Robot IMAGE HERE]** <br> **[INSERT 7-Day Trend Chart IMAGE HERE]** |
+<a href="[YOUR_REPO_LINK]" target="_blank"><img src="https://img.shields.io/badge/View_GitHub_Code-000000?style=for-the-badge&logo=github&logoColor=white"></a>
+🖼️ Screenshots	📌 Replace these paths with your actual images:
 
-</details>
+Dashboard UI:
 
 
 
+3D Digital Twin:
+
+
+
+7-Day Trend Chart:
