@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bio-Metric Digital Twin | Safety Operations Center</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        slate: { 850: '#151b2b', 900: '#0f131f' },
+                        blue: { 550: '#3b82f6' }
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Enterprise Dashboard Aesthetics */
+        body {
+            background-color: #0f172a; /* Slate 900 */
+            color: #e2e8f0;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Glassmorphism Card */
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s ease;
+        }
+        
+        .glass-panel:hover {
+            border-color: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Custom Scrollbar */
+        .terminal-scroll::-webkit-scrollbar { width: 8px; }
+        .terminal-scroll::-webkit-scrollbar-track { background: #0f172a; }
+        .terminal-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        .terminal-scroll::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        /* Status Indicators */
+        .status-dot { height: 8px; width: 8px; border-radius: 50%; display: inline-block; }
+        .status-active { background-color: #10b981; box-shadow: 0 0 8px rgba(16, 185, 129, 0.6); }
+        .status-warning { background-color: #f59e0b; box-shadow: 0 0 8px rgba(245, 158, 11, 0.6); }
+        .status-danger { background-color: #ef4444; box-shadow: 0 0 8px rgba(239, 68, 68, 0.6); }
+
+        #canvas-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <nav class="border-b border-slate-700 bg-slate-900/80 backdrop-blur-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded bg-indigo-600 flex items-center justify-center text-white">
+                        <i class="fas fa-shield-halved"></i>
+                    </div>
+                    <span class="font-bold text-xl tracking-tight text-white">SafeGuard <span class="text-indigo-400 font-light">Twin</span></span>
+                </div>
+                <div class="flex items-center gap-4 text-sm text-slate-400">
+                    <div class="flex items-center gap-2">
+                        <span class="status-dot status-active" id="system-status-dot"></span>
+                        <span id="system-status-text">System Operational</span>
+                    </div>
+                    <div class="h-4 w-px bg-slate-700"></div>
+                    <span class="font-mono text-xs">VER 2.6.0-INT</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-grow max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
+        
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+            <div>
+                <h1 class="text-2xl font-bold text-white mb-1">Worker Safety Console</h1>
+                <p class="text-slate-400 text-sm">Real-time biometric & environmental monitoring.</p>
+            </div>
+            <div class="flex gap-3">
+                <button id="refresh-btn" class="glass-panel px-4 py-2 rounded-lg text-sm font-medium text-slate-200 hover:bg-slate-800 transition-colors flex items-center gap-2">
+                    <i class="fas fa-sync-alt"></i> Sync Data
+                </button>
+                <button onclick="toggleDevMode()" class="glass-panel px-4 py-2 rounded-lg text-sm font-medium text-indigo-400 hover:text-indigo-300 hover:bg-slate-800 transition-colors flex items-center gap-2">
+                    <i class="fas fa-code"></i> Sim: <span id="sim-mode-text">Auto</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 h-full">
+            
+            <div class="lg:col-span-8 flex flex-col gap-6">
+                <div class="glass-panel rounded-xl p-1 h-[500px] relative group">
+                    <div id="canvas-container">
+                        <div id="loader" class="absolute inset-0 flex items-center justify-center text-indigo-400">
+                            <i class="fas fa-circle-notch fa-spin text-3xl"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="absolute top-4 left-4 pointer-events-none">
+                        <div class="bg-slate-900/80 backdrop-blur px-3 py-1 rounded text-xs font-mono text-indigo-300 border border-indigo-500/30">
+                            ID: WORKER-49B
+                        </div>
+                    </div>
+                    <div class="absolute bottom-4 right-4 pointer-events-none text-right">
+                        <div class="text-xs text-slate-400 font-mono">LOCATION</div>
+                        <div class="text-sm font-bold text-white">ABU DHABI OUTPOST</div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="glass-panel p-4 rounded-xl relative overflow-hidden">
+                        <div class="absolute -right-2 -top-2 text-6xl text-slate-800 opacity-20"><i class="fas fa-heart-pulse"></i></div>
+                        <div class="text-slate-400 text-xs uppercase tracking-wider font-semibold mb-1">Heart Rate</div>
+                        <div class="flex items-end gap-2">
+                            <span id="bio-hr" class="text-3xl font-bold text-white">--</span>
+                            <span class="text-sm text-slate-500 mb-1">bpm</span>
+                        </div>
+                        <div class="w-full bg-slate-700 h-1 mt-3 rounded-full overflow-hidden">
+                            <div id="bar-hr" class="h-full bg-rose-500 transition-all duration-1000" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel p-4 rounded-xl relative overflow-hidden">
+                        <div class="absolute -right-2 -top-2 text-6xl text-slate-800 opacity-20"><i class="fas fa-temperature-full"></i></div>
+                        <div class="text-slate-400 text-xs uppercase tracking-wider font-semibold mb-1">Core Temp</div>
+                        <div class="flex items-end gap-2">
+                            <span id="bio-ct" class="text-3xl font-bold text-white">--</span>
+                            <span class="text-sm text-slate-500 mb-1">°C</span>
+                        </div>
+                        <div class="w-full bg-slate-700 h-1 mt-3 rounded-full overflow-hidden">
+                            <div id="bar-ct" class="h-full bg-orange-500 transition-all duration-1000" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel p-4 rounded-xl relative overflow-hidden">
+                        <div class="absolute -right-2 -top-2 text-6xl text-slate-800 opacity-20"><i class="fas fa-tint"></i></div>
+                        <div class="text-slate-400 text-xs uppercase tracking-wider font-semibold mb-1">Hydration Idx</div>
+                        <div class="flex items-end gap-2">
+                            <span id="bio-hydro" class="text-3xl font-bold text-white">--</span>
+                            <span class="text-sm text-slate-500 mb-1">%</span>
+                        </div>
+                        <div class="w-full bg-slate-700 h-1 mt-3 rounded-full overflow-hidden">
+                            <div id="bar-hydro" class="h-full bg-blue-500 transition-all duration-1000" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-panel p-6 rounded-xl">
+                    <h3 class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4 flex justify-between items-center">
+                        <span>WORKER CORE TEMP HISTORY (7-Day Trend)</span>
+                        <i class="fas fa-chart-line text-orange-500"></i>
+                    </h3>
+                    <div class="relative h-64 w-full">
+                        <canvas id="coreTempChart"></canvas>
+                    </div>
+                </div>
+                </div>
+
+            <div class="lg:col-span-4 flex flex-col gap-6">
+                
+                <div class="glass-panel p-6 rounded-xl border-l-4 border-indigo-500 transition-colors duration-500" id="risk-panel">
+                    <h3 class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4">Heat Stress Index</h3>
+                    <div class="flex items-center justify-center py-6">
+                        <div class="text-center">
+                            <div id="risk-label" class="text-3xl font-black text-white tracking-tight">ANALYZING...</div>
+                            <div id="risk-desc" class="text-sm text-slate-400 mt-2">Connecting to environmental sensors</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="glass-panel p-6 rounded-xl">
+                    <h3 class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4 flex justify-between">
+                        <span>AI Prediction (Next 3 Hrs)</span>
+                        <i class="fas fa-brain text-indigo-500"></i>
+                    </h3>
+                    <div id="forecast-container" class="space-y-3">
+                        <div class="animate-pulse flex space-x-4">
+                            <div class="flex-1 space-y-4 py-1">
+                                <div class="h-4 bg-slate-700 rounded w-3/4"></div>
+                                <div class="space-y-2">
+                                    <div class="h-4 bg-slate-700 rounded"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-panel p-6 rounded-xl">
+                    <h3 class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4">Current Conditions</h3>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center border-b border-slate-700 pb-2">
+                            <span class="text-slate-300"><i class="fas fa-wind w-6 text-slate-500"></i> Ambient Temp</span>
+                            <span id="env-temp" class="font-mono text-white">-- °C</span>
+                        </div>
+                        <div class="flex justify-between items-center border-b border-slate-700 pb-2">
+                            <span class="text-slate-300"><i class="fas fa-water w-6 text-slate-500"></i> Humidity</span>
+                            <span id="env-hum" class="font-mono text-white">-- %</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-slate-300"><i class="fas fa-sun w-6 text-slate-500"></i> UV Index (Est)</span>
+                            <span id="env-uv" class="font-mono text-white">--</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-panel p-6 rounded-xl flex-grow flex flex-col">
+                    <h3 class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-2 flex justify-between">
+                        <span>System Kernel & Protocols</span>
+                        <span class="animate-pulse text-green-500">●</span>
+                    </h3>
+                    
+                    <div id="terminal-output" class="terminal-scroll flex-grow overflow-y-auto font-mono text-xs space-y-1 text-slate-400 p-2 bg-slate-900/50 rounded border border-slate-700/50 mb-3 h-32">
+                        <div class="text-indigo-400">root@safeguard:~$ init_sequence --force</div>
+                        <div>[KERNEL] Loading modules... OK</div>
+                        <div>[NET] Connecting to biometric sensors...</div>
+                    </div>
+
+                    <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Active Directives</h4>
+                    <ul id="protocol-list" class="space-y-2 text-sm text-slate-300">
+                        <li class="flex gap-3 opacity-50"><i class="fas fa-circle-notch fa-spin"></i> Analyzing...</li>
+                    </ul>
+                </div>
+                
+            </div>
+
+        </div>
+    </main>
+
+    <footer class="mt-auto border-t border-slate-800 bg-slate-900/50 backdrop-blur-sm py-6">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-slate-500 text-sm font-mono tracking-wide">
+                SYSTEM DESIGNED AND BUILT BY 
+                <span class="text-indigo-400 font-bold ml-1 relative group cursor-default">
+                    NIMRA NADEEM
+                    <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-indigo-500 transition-all group-hover:w-full"></span>
+                </span>
+            </p>
+            <p class="text-slate-700 text-xs mt-2">Powered by Three.js, Chart.js & OpenWeatherMap | Digital Twin v2.6</p>
+        </div>
+    </footer>
+
+    <script>
+        /* ---------------------------------------------------
+           PART 1: DATA & STATE MANAGEMENT (THE "BACKEND")
+           ---------------------------------------------------
+        */
+        const AppState = {
+            apiKey: "e9fcf5f577a5c9b63c661700ff937efb", // Demo Key
+            cityConfig: { lat: 24.4667, lon: 54.3667 }, // Abu Dhabi
+            data: {
+                temp: 30,
+                humidity: 50,
+                risk: 'LOW',
+                worker: { hr: 75, temp: 36.8, hydration: 98 }
+            },
+            simulationMode: false, // Toggles manual override for demo
+            lastFetch: 0
+        };
+
+        const CONSTANTS = {
+            RISK_LEVELS: {
+                LOW: { color: 0x10b981, hex: '#10b981', label: 'OPTIMAL', desc: 'Conditions ideal for standard operations.', status_class: 'status-active' },
+                MODERATE: { color: 0xfacc15, hex: '#facc15', label: 'CAUTION', desc: 'Increase hydration frequency.', status_class: 'status-warning' },
+                HIGH: { color: 0xf97316, hex: '#f97316', label: 'HIGH RISK', desc: 'Mandatory 15min breaks every hour.', status_class: 'status-warning' },
+                CRITICAL: { color: 0xef4444, hex: '#ef4444', label: 'DANGER', desc: 'Cease outdoor operations immediately.', status_class: 'status-danger' }
+            }
+        };
+
+        // Live Terminal Log function
+        function logToTerminal(msg, type = 'INFO') {
+            const term = document.getElementById('terminal-output');
+            if (!term) return; 
+            const line = document.createElement('div');
+            
+            const timestamp = new Date().toLocaleTimeString('en-US', {hour12: false, hour: "numeric", minute: "numeric", second: "numeric"});
+            let colorClass = 'text-slate-300';
+            let prefix = '[INFO]';
+            if (type === 'WARN') { colorClass = 'text-orange-400'; prefix = '[WARN]'; }
+            if (type === 'CRIT') { colorClass = 'text-red-400'; prefix = '[CRIT]'; }
+            if (type === 'SYS') { colorClass = 'text-indigo-400'; prefix = '[SYS]'; }
+
+            line.innerHTML = `<span class="text-slate-600">[${timestamp}]</span> <span class="${colorClass}">${prefix} ${msg}</span>`;
+            term.appendChild(line);
+            
+            // Limit log lines
+            if(term.childElementCount > 15) term.removeChild(term.firstChild);
+            term.scrollTop = term.scrollHeight;
+        }
+
+        // Simulated "Backend" Logic to calculate Biometrics from Environment
+        function calculateBiometrics(temp, humidity) {
+            // Base values
+            let hr = 70 + (Math.random() * 5);
+            let bodyTemp = 36.6 + (Math.random() * 0.2);
+            let hydration = 98 - (Math.random() * 2);
+
+            // Heat stress algorithms
+            const heatIndex = temp + 0.33 * humidity; // Simplified heat load
+
+            if (temp > 35) {
+                hr += (temp - 35) * 4; // HR rises with heat
+                bodyTemp += (temp - 35) * 0.1;
+                hydration -= (temp - 35) * 0.5;
+            }
+            if (humidity > 60) {
+                bodyTemp += 0.2; // Humidity makes cooling harder
+            }
+
+            // Clamp values to realistic ranges
+            return {
+                hr: Math.min(180, Math.max(50, Math.round(hr))),
+                temp: Math.min(42, Math.max(35, bodyTemp.toFixed(1))),
+                hydration: Math.min(100, Math.max(0, Math.round(hydration)))
+            };
+        }
+
+        function determineRisk(temp, humidity) {
+            if (temp >= 40 || (temp >= 35 && humidity > 60)) return 'CRITICAL';
+            if (temp >= 35 || (temp >= 30 && humidity > 70)) return 'HIGH';
+            if (temp >= 30) return 'MODERATE';
+            return 'LOW';
+        }
+
+        // AI Prediction Logic (Simulates a trend)
+        function generateForecast(currentTemp) {
+            const forecasts = [];
+            const now = new Date();
+            const currentHour = now.getHours();
+            
+            // Simple trend logic: Hotter until 14:00, then cooler
+            let trend = (currentHour >= 6 && currentHour < 14) ? 0.5 : -0.5;
+
+            for(let i=1; i<=3; i++) {
+                const nextTime = new Date(now.getTime() + i * 60 * 60 * 1000);
+                const nextTemp = currentTemp + (trend * i) + (Math.random() * 0.5);
+                const risk = determineRisk(nextTemp, AppState.data.humidity); // Assuming humidity stays similar
+                forecasts.push({
+                    time: nextTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+                    temp: nextTemp.toFixed(1),
+                    risk: risk
+                });
+            }
+            return forecasts;
+        }
+
+        async function fetchData() {
+            const btn = document.getElementById('refresh-btn');
+            const icon = btn.querySelector('i');
+            icon.classList.add('fa-spin');
+            logToTerminal("Initiating sensor data pull.", "SYS");
+
+            try {
+                let temp, humidity;
+
+                if (AppState.simulationMode) {
+                    const time = Date.now() / 5000;
+                    temp = 30 + Math.sin(time) * 15; // Swings between 15C and 45C
+                    humidity = 50 + Math.cos(time) * 20;
+                    logToTerminal(`Simulating environment: ${temp.toFixed(1)}°C, ${Math.round(humidity)}% humidity.`);
+                } else {
+                    logToTerminal("Connecting to OpenWeatherMap API...", "SYS");
+                    // 💡 NOTE: If using a Render backend proxy, this URL must be updated to your proxy URL.
+                    const url = `https://api.openweathermap.org/data/2.5/weather?lat=${AppState.cityConfig.lat}&lon=${AppState.cityConfig.lon}&appid=${AppState.apiKey}&units=metric`;
+                    const res = await fetch(url);
+                    if (!res.ok) throw new Error("API Limit or Error");
+                    const json = await res.json();
+                    temp = json.main.temp;
+                    humidity = json.main.humidity;
+                }
+
+                AppState.data.temp = temp;
+                AppState.data.humidity = humidity;
+                AppState.data.risk = determineRisk(temp, humidity);
+                AppState.data.worker = calculateBiometrics(temp, humidity);
+                AppState.data.forecast = generateForecast(temp);
+                
+                logToTerminal(`Biometrics captured. Risk Level: ${AppState.data.risk}`, AppState.data.risk === 'CRITICAL' ? 'CRIT' : (AppState.data.risk === 'HIGH' ? 'WARN' : 'INFO'));
+                
+                updateUI();
+                if(window.updateTwinState) window.updateTwinState(AppState.data.risk); // Inform 3D model
+
+            } catch (err) {
+                logToTerminal("Connection error. Switching to Emergency Simulation.", "CRIT");
+                AppState.simulationMode = true; // Auto-fallback
+                document.getElementById('sim-mode-text').innerText = "Fallback Active";
+                fetchData(); // Retry immediately in sim mode
+            } finally {
+                setTimeout(() => icon.classList.remove('fa-spin'), 500);
+            }
+        }
+
+        /* ---------------------------------------------------
+           PART 2: UI UPDATES
+           ---------------------------------------------------
+        */
+        function updateUI() {
+            const { temp, humidity, risk, worker, forecast } = AppState.data;
+            const meta = CONSTANTS.RISK_LEVELS[risk];
+
+            // Environmental
+            document.getElementById('env-temp').innerText = `${temp.toFixed(1)} °C`;
+            document.getElementById('env-hum').innerText = `${Math.round(humidity)} %`;
+            document.getElementById('env-uv').innerText = risk === 'CRITICAL' ? 'Very High' : (risk === 'HIGH' ? 'High' : 'Moderate');
+
+            // System Status Dot
+            const dot = document.getElementById('system-status-dot');
+            dot.className = `status-dot ${meta.status_class}`;
+            document.getElementById('system-status-text').innerText = meta.label === 'DANGER' ? 'EMERGENCY' : 'Operational';
+
+
+            // Biometrics
+            document.getElementById('bio-hr').innerText = worker.hr;
+            document.getElementById('bar-hr').style.width = `${Math.min(100, (worker.hr / 180) * 100)}%`;
+            
+            document.getElementById('bio-ct').innerText = worker.temp;
+            document.getElementById('bar-ct').style.width = `${Math.min(100, ((worker.temp - 35) / 5) * 100)}%`; // Normalize 35-40 range
+            
+            document.getElementById('bio-hydro').innerText = worker.hydration;
+            document.getElementById('bar-hydro').style.width = `${worker.hydration}%`;
+
+            // Risk Panel
+            const panel = document.getElementById('risk-panel');
+            const label = document.getElementById('risk-label');
+            const desc = document.getElementById('risk-desc');
+
+            label.innerText = meta.label;
+            desc.innerText = meta.desc;
+            
+            // CSS Color updates
+            panel.style.borderColor = meta.hex;
+            label.style.color = meta.hex;
+
+            // Protocols
+            const list = document.getElementById('protocol-list');
+            list.innerHTML = getProtocols(risk).map(p => `
+                <li class="flex items-start gap-3">
+                    <i class="fas fa-check text-indigo-400 mt-1"></i>
+                    <span>${p}</span>
+                </li>
+            `).join('');
+
+            // Forecast UI
+            const fContainer = document.getElementById('forecast-container');
+            fContainer.innerHTML = forecast.map(f => {
+                const fMeta = CONSTANTS.RISK_LEVELS[f.risk];
+                return `
+                <div class="flex justify-between items-center p-2 rounded bg-slate-800/50 border-l-2" style="border-color: ${fMeta.hex}">
+                    <div class="text-xs font-mono text-slate-400">${f.time}</div>
+                    <div class="text-sm font-bold text-white">${f.temp}°C</div>
+                    <div class="text-xs font-bold px-2 py-0.5 rounded text-slate-900" style="background-color: ${fMeta.hex}">${f.risk}</div>
+                </div>
+                `;
+            }).join('');
+
+            // 📊 Chart Update Call
+            if (window.updateChartData) {
+                 window.updateChartData(worker.temp);
+            }
+        }
+
+        function getProtocols(risk) {
+            switch(risk) {
+                case 'CRITICAL': return ["Stop Work Authority enabled.", "Deploy cooling vests.", "Prepare IV hydration kits."];
+                case 'HIGH': return ["Mandatory 15min rest / hour.", "Shaded areas required.", "Buddy system check active."];
+                case 'MODERATE': return ["Hydrate every 30 mins.", "Monitor UV index.", "Lightweight PPE only."];
+                default: return ["Standard safety checks.", "Routine hydration.", "Report anomalies."];
+            }
+        }
+
+        function toggleDevMode() {
+            AppState.simulationMode = !AppState.simulationMode;
+            document.getElementById('sim-mode-text').innerText = AppState.simulationMode ? "Manual" : "Auto";
+            logToTerminal(`Simulation Mode ${AppState.simulationMode ? 'ENGAGED (MANUAL OVERRIDE)' : 'DISABLED (AUTO SYNC)'}`, 'SYS');
+            fetchData();
+        }
+
+        /* ---------------------------------------------------
+           PART 3: THREE.JS DIGITAL TWIN (THE VISUALIZER)
+           ---------------------------------------------------
+        */
+        let particlesMesh;
+
+        function initThreeJS() {
+            const container = document.getElementById('canvas-container');
+            document.getElementById('loader').style.display = 'none';
+
+            const scene = new THREE.Scene();
+            scene.background = null; 
+
+            const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
+            camera.position.set(0, 1.5, 4.5);
+            camera.lookAt(0, 1.0, 0);
+
+            const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.shadowMap.enabled = true;
+            container.appendChild(renderer.domElement);
+
+            // Lighting
+            const ambient = new THREE.AmbientLight(0xffffff, 0.4);
+            scene.add(ambient);
+
+            const dirLight = new THREE.DirectionalLight(0xffffff, 1);
+            dirLight.position.set(5, 5, 5);
+            dirLight.castShadow = true;
+            scene.add(dirLight);
+
+            const blueRim = new THREE.SpotLight(0x3b82f6, 2);
+            blueRim.position.set(-5, 2, 0);
+            scene.add(blueRim);
+
+            // Ground (Sci-fi Grid)
+            const grid = new THREE.GridHelper(20, 20, 0x334155, 0x1e293b);
+            scene.add(grid);
+
+            // --- BUILD THE MANNEQUIN (Robot) ---
+            const matBody = new THREE.MeshStandardMaterial({ color: 0x94a3b8, roughness: 0.2, metalness: 0.5 });
+            const matJoints = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.5 });
+            let matVisor = new THREE.MeshStandardMaterial({
+                color: 0x000000,
+                roughness: 0.0,
+                metalness: 0.9,
+                emissive: 0x3b82f6,
+                emissiveIntensity: 0.2
+            });
+
+            const worker = new THREE.Group();
+
+            function createLimb(w, h, d, x, y, z, mat) {
+                const geo = new THREE.BoxGeometry(w, h, d);
+                const mesh = new THREE.Mesh(geo, mat);
+                mesh.position.set(x, y, z);
+                mesh.castShadow = true;
+                return mesh;
+            }
+
+            const hips = createLimb(0.35, 0.15, 0.2, 0, 1.0, 0, matBody);
+            worker.add(hips);
+
+            const torsoGroup = new THREE.Group();
+            torsoGroup.position.set(0, 1.075, 0);
+            const torso = createLimb(0.4, 0.5, 0.22, 0, 0.25, 0, matBody);
+            const chestPlate = createLimb(0.3, 0.2, 0.05, 0, 0.35, 0.1, matVisor);
+            torso.add(chestPlate);
+            torsoGroup.add(torso);
+            worker.add(torsoGroup);
+
+            const headGroup = new THREE.Group();
+            headGroup.position.set(0, 0.55, 0);
+            const neck = createLimb(0.1, 0.1, 0.1, 0, 0.05, 0, matJoints);
+            const head = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.28, 0.24), matBody);
+            head.position.set(0, 0.24, 0);
+            head.castShadow = true;
+            const visor = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.08, 0.05), matVisor);
+            visor.position.set(0, 0.05, 0.12);
+            head.add(visor);
+            headGroup.add(neck);
+            headGroup.add(head);
+            torsoGroup.add(headGroup);
+
+            function createArm(side) { 
+                const shoulder = new THREE.Group();
+                shoulder.position.set(side * 0.25, 0.45, 0);
+                const joint = new THREE.Mesh(new THREE.SphereGeometry(0.08), matJoints);
+                shoulder.add(joint);
+                const upperArm = createLimb(0.1, 0.35, 0.1, 0, -0.175, 0, matBody);
+                const upperArmGroup = new THREE.Group();
+                upperArmGroup.add(upperArm);
+                shoulder.add(upperArmGroup);
+                const elbow = new THREE.Group();
+                elbow.position.set(0, -0.35, 0);
+                const elbowJoint = new THREE.Mesh(new THREE.SphereGeometry(0.07), matJoints);
+                elbow.add(elbowJoint);
+                const lowerArm = createLimb(0.09, 0.35, 0.09, 0, -0.175, 0, matBody);
+                elbow.add(lowerArm);
+                upperArmGroup.add(elbow);
+                return { root: shoulder, upper: upperArmGroup, lower: elbow };
+            }
+
+            const leftArm = createArm(1);
+            const rightArm = createArm(-1);
+            torsoGroup.add(leftArm.root);
+            torsoGroup.add(rightArm.root);
+
+            function createLeg(side) {
+                const legRoot = new THREE.Group();
+                legRoot.position.set(side * 0.12, 1.0, 0);
+                const upperLeg = createLimb(0.14, 0.45, 0.14, 0, -0.225, 0, matBody);
+                const knee = new THREE.Mesh(new THREE.SphereGeometry(0.08), matJoints);
+                knee.position.set(0, -0.45, 0);
+                const lowerLeg = createLimb(0.12, 0.45, 0.12, 0, -0.675, 0, matBody);
+                legRoot.add(upperLeg);
+                legRoot.add(knee);
+                legRoot.add(lowerLeg);
+                return legRoot;
+            }
+
+            const leftLeg = createLeg(1);
+            const rightLeg = createLeg(-1);
+            worker.add(leftLeg);
+            worker.add(rightLeg);
+
+            scene.add(worker);
+            
+            // --- HEAT HAZE PARTICLE SYSTEM ---
+            const particlesGeo = new THREE.BufferGeometry();
+            const particlesCount = 200;
+            const posArray = new Float32Array(particlesCount * 3);
+            
+            for(let i=0; i < particlesCount * 3; i+=3) {
+                posArray[i] = (Math.random() - 0.5) * 4; // X position
+                posArray[i+1] = Math.random() * 2.5;     // Y position (0 to 2.5m height)
+                posArray[i+2] = (Math.random() - 0.5) * 4; // Z position
+            }
+            particlesGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+            
+            const particlesMat = new THREE.PointsMaterial({
+                size: 0.02,
+                color: 0x3b82f6, // Start Blue (Cool)
+                transparent: true,
+                opacity: 0.6,
+                sizeAttenuation: true
+            });
+            particlesMesh = new THREE.Points(particlesGeo, particlesMat);
+            scene.add(particlesMesh);
+
+
+            // --- ANIMATION LOGIC ---
+            let clock = new THREE.Clock();
+            let currentState = 'LOW'; 
+
+            // Expose function to update state from UI
+            window.updateTwinState = (risk) => {
+                currentState = risk;
+                const meta = CONSTANTS.RISK_LEVELS[risk];
+
+                // Change Visor Color based on risk
+                matVisor.emissive.setHex(meta.color);
+                
+                // Change Particle Color based on risk
+                if (risk === 'CRITICAL') {
+                    particlesMat.color.setHex(0xef4444); // Red Haze
+                    particlesMat.size = 0.05;
+                } else if (risk === 'HIGH') {
+                    particlesMat.color.setHex(0xf97316); // Orange Haze
+                    particlesMat.size = 0.03;
+                } else {
+                    particlesMat.color.setHex(0x3b82f6); // Blue Mist
+                    particlesMat.size = 0.02;
+                }
+            };
+
+            function animate() {
+                requestAnimationFrame(animate);
+                
+                const t = clock.getElapsedTime();
+                const delta = clock.getDelta();
+
+                // 1. Robot Animations
+                const breathSpeed = currentState === 'CRITICAL' ? 8 : (currentState === 'HIGH' ? 4 : 1.5);
+                const breathAmp = currentState === 'CRITICAL' ? 0.02 : 0.01;
+                
+                torsoGroup.position.y = 1.075 + Math.sin(t * breathSpeed) * 0.005;
+                torsoGroup.scale.x = 1 + Math.sin(t * breathSpeed) * breathAmp;
+                torsoGroup.scale.z = 1 + Math.sin(t * breathSpeed) * breathAmp;
+
+                if (currentState === 'CRITICAL') {
+                    headGroup.rotation.x = THREE.MathUtils.lerp(headGroup.rotation.x, 0.5, 0.05);
+                    headGroup.rotation.y = THREE.MathUtils.lerp(headGroup.rotation.y, Math.sin(t*15) * 0.1, 0.05); // Rapid Shake
+                    // Arms hang loose
+                    leftArm.upper.rotation.z = THREE.MathUtils.lerp(leftArm.upper.rotation.z, 0.2, 0.1);
+                    rightArm.upper.rotation.z = THREE.MathUtils.lerp(rightArm.upper.rotation.z, -0.2, 0.1);
+                } else {
+                    headGroup.rotation.y = Math.sin(t * 0.5) * 0.3;
+                    headGroup.rotation.x = Math.sin(t * 0.3) * 0.05;
+                    // Slight idle sway
+                    leftArm.upper.rotation.z = 0.2 + Math.sin(t + 1) * 0.05;
+                    rightArm.upper.rotation.z = -0.2 - Math.sin(t + 1) * 0.05;
+                    
+                    leftArm.lower.rotation.x = -0.1 + Math.sin(t) * 0.1;
+                    rightArm.lower.rotation.x = -0.1 + Math.sin(t) * 0.1;
+                }
+
+                // 2. Particle Animation (Heat Simulation)
+                const speed = currentState === 'CRITICAL' ? 0.8 : (currentState === 'HIGH' ? 0.3 : 0.05); // Vertical speed
+                const jitter = currentState === 'CRITICAL' ? 0.02 : 0.001; // Horizontal chaos
+                const positions = particlesGeo.attributes.position.array;
+                
+                for(let i=0; i < particlesCount * 3; i+=3) {
+                    positions[i] += (Math.random() - 0.5) * jitter; // X jitter
+                    positions[i+1] += speed * delta; // Y movement
+                    positions[i+2] += (Math.random() - 0.5) * jitter; // Z jitter
+
+                    // Reset when particle goes too high
+                    if(positions[i+1] > 3.0) {
+                        positions[i] = (Math.random() - 0.5) * 4;
+                        positions[i+1] = 0.0;
+                        positions[i+2] = (Math.random() - 0.5) * 4;
+                    }
+                }
+                particlesGeo.attributes.position.needsUpdate = true;
+
+
+                renderer.render(scene, camera);
+            }
+
+            animate();
+
+            // Resize Handle
+            window.addEventListener('resize', () => {
+                camera.aspect = container.clientWidth / container.clientHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(container.clientWidth, container.clientHeight);
+            });
+        }
+
+        /* ---------------------------------------------------
+           PART 4: INTERACTIVE CHART JS INIT (NEW)
+           ---------------------------------------------------
+        */
+        let coreTempChartInstance = null;
+
+        function initCharts() {
+            const ctx = document.getElementById('coreTempChart').getContext('2d');
+            
+            // Generate dummy historical data (7-Day Trend)
+            const labels = ['Day -6', 'Day -5', 'Day -4', 'Day -3', 'Day -2', 'Yesterday', 'Today'];
+            // Simulating average core temp, which hovers around 37.0
+            const dataPoints = [36.9, 36.8, 37.0, 37.2, 37.1, 37.5, 37.0]; 
+
+            coreTempChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Avg. Core Temp (°C)',
+                        data: dataPoints,
+                        borderColor: '#f97316', // Orange 500 for heat
+                        backgroundColor: 'rgba(249, 115, 22, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.3,
+                        pointRadius: 6, // Larger points for interaction
+                        pointHoverRadius: 8,
+                        pointBackgroundColor: 'white',
+                        pointBorderColor: '#f97316'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    // 💡 Key Interactivity Settings for Employers
+                    hover: { mode: 'nearest', intersect: true }, 
+                    plugins: { 
+                        legend: { display: false },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            titleFont: { family: 'JetBrains Mono' },
+                            bodyFont: { family: 'JetBrains Mono' },
+                            padding: 10,
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) { label += ': '; }
+                                    if (context.parsed.y !== null) {
+                                        label += `${context.parsed.y.toFixed(2)} °C`;
+                                    }
+                                    return label;
+                                },
+                                // Extra line in the tooltip for context
+                                afterLabel: function(context) {
+                                    if (context.parsed.y >= 37.5) return '⚠️ High Stress Point';
+                                    return 'Normal Biometric Range';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#94a3b8', font: { size: 10, family: 'JetBrains Mono' } } 
+                        },
+                        y: { 
+                            // Set min/max to ensure high stress (37.5) is visible
+                            min: 36.5, 
+                            max: 38.0,
+                            grid: { color: 'rgba(255,255,255,0.05)' },
+                            ticks: { color: '#94a3b8', font: { size: 10 } } 
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Function to update the last data point with the new real-time value
+        window.updateChartData = function(newCoreTemp) {
+            if (coreTempChartInstance) {
+                // Parse the string from calculateBiometrics back to a float
+                const newTemp = parseFloat(newCoreTemp);
+                // Update the last data point ('Today') with the new real-time value
+                coreTempChartInstance.data.datasets[0].data[6] = newTemp;
+                coreTempChartInstance.update();
+            }
+        }
+
+        /* ---------------------------------------------------
+           INIT
+           ---------------------------------------------------
+        */
+        window.addEventListener('DOMContentLoaded', () => {
+            initThreeJS();
+            initCharts(); // Initialize the new chart
+            
+            // Initial Data Fetch
+            fetchData();
+            
+            // Auto Refresh every 30s
+            setInterval(() => { if(!AppState.simulationMode) fetchData() }, 30000);
+            
+            // Button Listener
+            document.getElementById('refresh-btn').addEventListener('click', fetchData);
+
+            // Initial Terminal Logs
+            setTimeout(() => logToTerminal("System Ready. Waiting for primary data feed...", "SYS"), 500);
+        });
+
+    </script>
+</body>
+</html>

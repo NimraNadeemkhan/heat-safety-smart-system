@@ -1,0 +1,19 @@
+{
+  "name": "safeguard-digital-twin",
+  "version": "1.0.0",
+  "description": "Real-time Bio-Metric Digital Twin dashboard.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "threejs",
+    "express",
+    "dashboard"
+  ],
+  "author": "Nimra Nadeem",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
