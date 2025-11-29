@@ -1,0 +1,11 @@
+# Dependency folder (MUST be ignored for Node.js projects)
+/node_modules
+
+# Windows, Mac, and temporary files
+Thumbs.db
+.DS_Store
+*.log
+
+# Files that often contain secrets
+.env
+Add .gitignore to keep the project clean.
