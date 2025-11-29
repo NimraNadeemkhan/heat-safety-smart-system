@@ -20,15 +20,15 @@
 ### 🖼️ Screenshots
 
 <p align="center">
-  **7-Day Trends Chart**
+  7-Day Trends Chart
   <br>
   <img src="https://raw.githubusercontent.com/NimraNadeemkhan/heat-safety-smart-system/main/7%20day%20graph.png" width="600" alt="7-Day Weather Trend Graph"/>
   <br>
-  **Digital Twin View**
+  Digital Twin View
   <br>
   <img src="https://raw.githubusercontent.com/NimraNadeemkhan/heat-safety-smart-system/main/digital-twin-robot.png" width="500" alt="3D Digital Twin Robot Visualization"/>
   <br>
-  **Heat Stress Index**
+  Heat Stress Index
   <br>
   <img src="https://raw.githubusercontent.com/NimraNadeemkhan/heat-safety-smart-system/main/Heat%20stress%20index%20in%20different%20conditions.png" width="600" alt="Heat Stress Index in Different Conditions Chart"/>
 </p>
