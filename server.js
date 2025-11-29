@@ -1,22 +1,25 @@
 // server.js (Node/Express Backend)
 
 const express = require('express');
-const path = require('path');
+const path = require('require');
 const app = express();
-const port = 3000;
+// RENDER FIX 1: Use the environment port provided by Render (process.env.PORT)
+// Fallback to 3000 for local development.
+const PORT = process.env.PORT || 3000;
 
-// Set up the 'public' directory to serve static files (HTML, JS, CSS)
-app.use(express.static(path.join(__dirname, 'public')));
+// RENDER FIX 2: Set the root directory to serve static files (HTML, JS, CSS)
+// This tells Express to find files like index.html directly in the root, 
+// matching your current GitHub file structure.
+app.use(express.static(__dirname));
 
 // Fallback for the root path: serves index.html
 app.get('/', (req, res) => {
-  // The client-side code handles all data fetching and rendering, 
-  // so we just serve the main file.
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  // RENDER FIX 3: Removed 'public' from the path.
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 // Start the server
-app.listen(port, () => {
-  console.log(`🚀 Digital Twin Server running at http://localhost:${port}`);
-  console.log('Serving files from: /public');
+app.listen(PORT, () => {
+  console.log(`🚀 Digital Twin Server running on port ${PORT}`);
+  console.log('Serving files from: Root Directory');
 });
